@@ -1,0 +1,8 @@
+---
+# Default do nothing
+ups__install: False
+ups__configure: False
+
+# defaults file for empty
+ups__default_packages:
+  - apcupsd

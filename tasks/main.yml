@@ -1,0 +1,16 @@
+---
+- name: ups install packages
+  apt:
+    name: "{{ ups__default_packages }}"
+    update_cache: yes
+    state: present
+  when: ups__install
+
+- name: Setup apcupsd.conf
+  template:
+    src: apcupsd.conf
+    dest: /etc/apcupsd/apcupsd.conf
+  when:
+    - ups__configure
+  # notify: Reload exim4
+
