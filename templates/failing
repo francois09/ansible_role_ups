@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+# This shell script if placed in /etc/apcupsd
+# will be called by /etc/apcupsd/apccontrol when apcupsd
+# detects that the battery is failing
+#
+
+HOSTNAME=`hostname`
+MSG="$HOSTNAME UPS $1 battery power exhausted."
+#
+TIME_REMAINING=$(/sbin/apcaccess status|grep TIMELEFT|sed 's/.* : //;s/ .*//;s/\..*//')
+CHARGE_REMAINING=$(/sbin/apcaccess status|grep BCHARGE|sed 's/.* : //;s/ .*//;s/\..*//')
+# STATUS=$(/sbin/apcaccess status|grep -e '^STATUS'|sed -e 's/.*: //;s/ *$//')
+if [ "${TIME_REMAINING}" -gt "{{ ups__conf.time_left }}" ]
+then
+    MSG="$HOSTNAME UPS $1 battery reported wrongly failing"
+  (
+   echo "$MSG"
+   echo " "
+   echo "Time remaining: >$TIME_REMAINING<"
+   echo " "
+   /sbin/apcaccess status
+  ) | $APCUPSD_MAIL -s "$MSG" $SYSADMIN
+  exit 99
+fi
+
+if [ "${CHARGE_REMAINING}" -gt "{{ ups__conf.battery_level }}" ]
+then
+    MSG="$HOSTNAME UPS $1 battery reported wrongly failing"
+  (
+   echo "$MSG"
+   echo " "
+   echo "Charge remaining: >$CHARGE_REMAINING<"
+   echo " "
+   /sbin/apcaccess status
+  ) | $APCUPSD_MAIL -s "$MSG" $SYSADMIN
+  exit 99
+fi
+MSG="$HOSTNAME UPS $1 battery seems failing"
+(
+ echo "$MSG"
+ echo " "
+ echo "Full status:"
+ echo " "
+ /sbin/apcaccess status
+) | $APCUPSD_MAIL -s "$MSG" $SYSADMIN
+exit 0

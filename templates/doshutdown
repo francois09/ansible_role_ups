@@ -1,0 +1,46 @@
+#!/bin/sh
+#
+# This shell script if placed in /etc/apcupsd
+# will be called by /etc/apcupsd/apccontrol when apcupsd
+# want to start a shutdown
+#
+
+HOSTNAME=`hostname`
+MSG="$HOSTNAME UPS $1 shutdown will be initiated."
+#
+TIME_REMAINING=$(/sbin/apcaccess status|grep TIMELEFT|sed 's/.* : //;s/ .*//;s/\..*//')
+CHARGE_REMAINING=$(/sbin/apcaccess status|grep BCHARGE|sed 's/.* : //;s/ .*//;s/\..*//')
+# STATUS=$(/sbin/apcaccess status|grep -e '^STATUS'|sed -e 's/.*: //;s/ *$//')
+if [ "${TIME_REMAINING}" -gt "5" ]
+then
+    MSG="$HOSTNAME UPS $1 battery reported wrongly failing"
+  (
+   echo "$MSG"
+   echo " "
+   echo "Time remaining: >$TIME_REMAINING<"
+   echo " "
+   /sbin/apcaccess status
+  ) | $APCUPSD_MAIL -s "$MSG" $SYSADMIN
+  exit 99
+fi
+
+if [ "${CHARGE_REMAINING}" -gt "8" ]
+then
+    MSG="$HOSTNAME UPS $1 battery reported wrongly failing"
+  (
+   echo "$MSG"
+   echo " "
+   echo "Charge remaining: >$CHARGE_REMAINING<"
+   echo " "
+   /sbin/apcaccess status
+  ) | $APCUPSD_MAIL -s "$MSG" $SYSADMIN
+  exit 99
+fi
+(
+ echo "$MSG"
+ echo " "
+ echo "Full status:"
+ echo " "
+ /sbin/apcaccess status
+) | $APCUPSD_MAIL -s "$MSG" $SYSADMIN
+exit 0
