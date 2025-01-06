@@ -6,11 +6,15 @@
     state: present
   when: ups__install
 
-- name: Setup apcupsd.conf
+- name: Setup config file apcupsd.conf
   template:
     src: apcupsd.conf
     dest: /etc/apcupsd/apcupsd.conf
   when:
     - ups__configure
-  # notify: Reload exim4
+
+- include_tasks: setup_scripts.yml
+  loop: "{{ ups__scriptlist }}"
+  when:
+    - ups__configure
 

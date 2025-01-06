@@ -6,3 +6,13 @@ ups__configure: False
 # defaults file for empty
 ups__default_packages:
   - apcupsd
+
+ups__scriptlist:
+  - changeme
+  - apccontrol
+  - failing # Battery fail
+  - doshutdown # When shutdown is initiated
+
+ups__conf:
+  battery_level: 8
+  time_left: 5
