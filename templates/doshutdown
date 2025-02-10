@@ -8,9 +8,8 @@
 HOSTNAME=`hostname`
 MSG="$HOSTNAME UPS $1 shutdown will be initiated."
 #
-TIME_REMAINING=$(/sbin/apcaccess status|grep TIMELEFT|sed 's/.* : //;s/ .*//;s/\..*//')
-CHARGE_REMAINING=$(/sbin/apcaccess status|grep BCHARGE|sed 's/.* : //;s/ .*//;s/\..*//')
-# STATUS=$(/sbin/apcaccess status|grep -e '^STATUS'|sed -e 's/.*: //;s/ *$//')
+TIME_REMAINING=$(/sbin/apcaccess -u -p TIMELEFT|sed 's/\..*//')
+CHARGE_REMAINING=$(/sbin/apcaccess -u -p BCHARGE|sed 's/\..*//')
 if [ "${TIME_REMAINING}" -gt "5" ]
 then
     MSG="$HOSTNAME UPS $1 battery reported wrongly failing"
