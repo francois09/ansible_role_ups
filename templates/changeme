@@ -11,7 +11,7 @@ MSG="$HOSTNAME UPS $1 battery needs changing NOW."
 #
 # Small wait and check status
 sleep 1m
-STATUS=$(/sbin/apcaccess status|grep -e '^STATUS'|sed -e 's/.*: //;s/ *$//')
+STATUS=$(/sbin/apcaccess -u -p STATUS|sed -e 's/ *$//')
 if [ "$STATUS" != "ONLINE" ]
 then
   (
