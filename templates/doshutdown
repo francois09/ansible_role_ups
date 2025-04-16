@@ -20,7 +20,10 @@ then
    echo " "
    /sbin/apcaccess status
   ) | $APCUPSD_MAIL -s "$MSG" $SYSADMIN
-  exit 99
+{% if ups__use_signal|default(False) %}
+    signal-cli -a "{{ ups__signal_from }}" send -m "$MSG" "{{ ups__signal_to }}"
+{% endif %}
+    exit 99
 fi
 
 if [ "${CHARGE_REMAINING}" -gt "8" ]
@@ -33,7 +36,10 @@ then
    echo " "
    /sbin/apcaccess status
   ) | $APCUPSD_MAIL -s "$MSG" $SYSADMIN
-  exit 99
+{% if ups__use_signal|default(False) %}
+    signal-cli -a "{{ ups__signal_from }}" send -m "$MSG" "{{ ups__signal_to }}"
+{% endif %}
+    exit 99
 fi
 (
  echo "$MSG"
@@ -42,4 +48,7 @@ fi
  echo " "
  /sbin/apcaccess status
 ) | $APCUPSD_MAIL -s "$MSG" $SYSADMIN
+{% if ups__use_signal|default(False) %}
+signal-cli -a "{{ ups__signal_from }}" send -m "$MSG" "{{ ups__signal_to }}"
+{% endif %}
 exit 0
